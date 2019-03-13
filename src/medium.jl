@@ -35,11 +35,8 @@ using ChipSort
 
 
 
-
-
-
-# T=Float64
-# C=128
+# T=Int32
+# C=8
 # N=8
 # L=8
 
@@ -49,15 +46,8 @@ using ChipSort
 # qq = chipsort_medium(data, Val(C), Val(N), Val(L))
 # reshape(qq, 16,:)
 
+# @code_native chipsort_medium(data, Val(C), Val(N), Val(L))
 
-
-
-using Profile
-using ProfileView
-Profile.clear()
-@profile mine(1000)
-# Profile.print()
-ProfileView.view()
 
 
 function base(reps)
@@ -76,6 +66,18 @@ end
 
 display(@benchmark base(10))
 display(@benchmark mine(10))
+
+
+
+
+using Profile
+using ProfileView
+Profile.clear()
+@profile mine(1000)
+# Profile.print()
+ProfileView.view()
+
+
 
 
 # data = rand(T, 64*64)
