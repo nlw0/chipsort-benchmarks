@@ -33,12 +33,32 @@ using ChipSort
 
 
 
-function mine(reps)
-    for _ in 1:reps
-        data = rand(Int32, 128*64)
-        chipsort_medium(data, Val(128), Val(8), Val(8))
-    end
-end
+
+
+
+
+
+# T=Float64
+# C=128
+# N=8
+# L=8
+
+# data = valloc(T, div(32, sizeof(T)), C*N*L)
+# data .= rand(T, C*N*L)
+
+# qq = chipsort_medium(data, Val(C), Val(N), Val(L))
+# reshape(qq, 16,:)
+
+
+
+
+using Profile
+using ProfileView
+Profile.clear()
+@profile mine(1000)
+# Profile.print()
+ProfileView.view()
+
 
 function base(reps)
     for _ in 1:reps
@@ -47,25 +67,67 @@ function base(reps)
     end
 end
 
+function mine(reps)
+    for _ in 1:reps
+        data = rand(Int32, 128*64)
+        chipsort_medium(data, Val(128), Val(8), Val(8))
+    end
+end
+
 display(@benchmark base(10))
 display(@benchmark mine(10))
 
-# T=Float32
-# C=128
-# N=8
-# L=8
-# data = valloc(T, div(32, sizeof(T)), C*N*L)
-# data .= rand(T, C*N*L)
-# qq=chipsort_medium(data, Val(C), Val(N), Val(L))
-# reshape(qq, 16,:)
 
-using Profile
-using ProfileView
-Profile.clear()
-@profile mine(1000)
-#Profile.print()
-ProfileView.view()
+# data = rand(T, 64*64)
+# @code_native
+# chipsort_medium(data, Val(C), Val(N), Val(L)) == sort(data)
 
 
-data = rand(Int32, 64*64)
-@code_native chipsort_medium(data, Val(64), Val(8), Val(8))
+# println("First pass")
+# aa = [x for _ in 1:C*L for x in sort(rand(T,N))]
+# oo = zeros(T, C*L*N)
+
+# C = C >> 1
+# bitonic_merge_interleaved(
+#     ntuple(c->pointer(oo, 1+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(oo, 1+N+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(aa, 1+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(aa, 1+L*N+(2*(c-1))*L*N), C),
+#     Val(N)
+# )
+
+# display(reshape(aa,N*L,:))
+# display(reshape(oo,N*L*2,:))
+
+# println("second pass")
+# L = L << 1
+# C = C >> 1
+# aa = oo
+# oo = zeros(T, 2*C*L*N)
+
+# bitonic_merge_interleaved(
+#     ntuple(c->pointer(oo, 1+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(oo, 1+N+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(aa, 1+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(aa, 1+L*N+(2*(c-1))*L*N), C),
+#     Val(N)
+# )
+
+# display(reshape(oo,N*L*2,:))
+
+# bitonic_merge_interleaved(
+#     ntuple(c->pointer(oo, 1+N+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(oo, 1+2*N+(2*(c-1))*L*N), C),
+#     ntuple(c->pointer(oo, 1+N+(2*(c-1))*L*N), C),
+#     ntuple(c->
+#            if aa[1+N+(2*(c-1))*L*N] < aa[1+N+L*N+(2*(c-1))*L*N]
+#            pointer(aa, 1+N+(2*(c-1))*L*N)
+#            else
+#            pointer(aa, 1+N+L*N+(2*(c-1))*L*N)
+#            end
+#            , C),
+#     Val(N)
+# )
+
+
+# display(reshape(oo,N*L*2,:))
