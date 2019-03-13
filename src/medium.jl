@@ -35,14 +35,14 @@ using ChipSort
 
 function mine(reps)
     for _ in 1:reps
-        data = rand(Int32, 64*64)
-        chipsort_medium(data, Val(64), Val(8), Val(8))
+        data = rand(Int32, 128*64)
+        chipsort_medium(data, Val(128), Val(8), Val(8))
     end
 end
 
 function base(reps)
     for _ in 1:reps
-        data = rand(Int32, 64*64)
+        data = rand(Int32, 128*64)
         sort(data)
     end
 end
@@ -65,3 +65,7 @@ Profile.clear()
 @profile mine(1000)
 #Profile.print()
 ProfileView.view()
+
+
+data = rand(Int32, 64*64)
+@code_native chipsort_medium(data, Val(64), Val(8), Val(8))
