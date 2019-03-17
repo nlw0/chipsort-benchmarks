@@ -37,19 +37,19 @@ J=8
 
 len = V*J*K
 
-# data = randa(T, len)
+data = randa(T, len)
 # display(reshape(data, V, :))
 # display(reshape(data, 8, :))
-# srt = sort(data)
+srt = sort(data)
 # display(reshape(srt, 8, :))
 # @code_native debuginfo=:none chipsort_medium!(data, K, Val(64))
-# chipsort_medium!(data, Val(V), Val(J), Val(K))
+chipsort_medium!(data, Val(V), Val(J), Val(K))
 # combsort!(data)
 # display(reshape(data, 8, :))
 
 
 # @btime sort_vecs!(data, Val(8), Val(8))
 
-do_benchmark(T, K)
-""
-# @assert data==srt
+# do_benchmark(T, K)
+# ""
+@assert data==srt
